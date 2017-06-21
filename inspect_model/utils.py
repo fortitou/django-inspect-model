@@ -71,8 +71,14 @@ class InspectModel(object):
         self.many_fields = set()
         opts = getattr(self.model, '_meta', None)
         if opts:
-            for f in opts.get_all_field_names():
-                field, model, direct, m2m = opts.get_field_by_name(f)
+            # for f in opts.get_all_field_names():
+            opts_names = [f.name for f in opts.model._meta.get_fields()]
+            for f in opts_names:
+                field = opts.model._meta.get_field(f)
+                model = field.model
+                direct = not field.auto_created or field.concrete
+                m2m = field.many_to_many
+                # field, model, direct, m2m = opts.get_field_by_name(f)
                 if not direct:  # relation or many field from another model
                     name = field.get_accessor_name()
                     field = field.field
